@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Hidroponik Modern</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border-top: 5px solid #2ecc71;
+        }
+        .card.ph-down {
+            border-top-color: #e74c3c;
+        }
+        h1, h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        .radio-group input {
+            margin-right: 6px;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .ph-down button {
+            background-color: #e74c3c;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .results {
+            background-color: #eef9f3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            border-left: 4px solid #2ecc71;
+        }
+        .ph-down .results {
+            background-color: #fdf2f2;
+            border-left-color: #e74c3c;
+        }
+        .results h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .result-item span:last-child {
+            font-weight: bold;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            border-left: 4px solid #ffc107;
+            line-height: 1.4;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .text-blue {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================================== -->
+    <!-- 1. KALKULATOR NUTRISI AB MIX -->
+    <!-- ========================================== -->
+    <div class="card">
+        <h2>🌱 Kalkulator Nutrisi AB MIX</h2>
+        
+        <!-- Pilihan Skenario Air & Satuan -->
+        <div class="radio-group" style="background: #e8f8f5; border: 1px solid #d1f2eb;">
+            <strong style="width: 100%; display: block; font-size: 0.85rem; color: #16a085; margin-bottom: 5px;">Skenario Volume Air:</strong>
+            <label><input type="radio" name="ab-skenario" value="tetap" checked onchange="updateABUI()"> Volume Tetap</label>
+            <label><input type="radio" name="ab-skenario" value="tambah" onchange="updateABUI()"> Penambahan Air Baru</label>
+        </div>
+
+        <div class="radio-group">
+            <strong style="width: 100%; display: block; font-size: 0.85rem; color: #7f8c8d; margin-bottom: 5px;">Satuan Pengukuran:</strong>
+            <label><input type="radio" name="ab-satuan" value="ppm" checked onchange="updateABUI()"> Hitung via PPM</label>
+            <label><input type="radio" name="ab-satuan" value="ec" onchange="updateABUI()"> Hitung via EC</label>
+        </div>
+
+        <div class="radio-group">
+            <strong style="width: 100%; display: block; font-size: 0.85rem; color: #7f8c8d; margin-bottom: 5px;">Metode Input Dimensi:</strong>
+            <label><input type="radio" name="ab-input-type" value="tinggi" checked onchange="updateABUI()"> Ketinggian Air (Cm)</label>
+            <label><input type="radio" name="ab-input-type" value="volume" onchange="updateABUI()"> Volume Air (Liter)</label>
+        </div>
+
+        <!-- Input Dimensi Dropdown jika memilih Ketinggian -->
+        <div id="ab-dimensi-box">
+            <div class="form-group">
+                <label>Pilih Bentuk Wadah / Tandon</label>
+                <select id="ab-wadah">
+                    <option value="3.24">Bunker GH5 (Berukuran 1.8 x 1.8 meter)</option>
+                    <option value="0.8992">Tandon Grand Hitam 1200 Liter (D 107 cm, T 156 cm)</option>
+                    <option value="0.8825">Tandon Grand Orange 1200 Liter (D 106 cm, T 152 cm)</option>
+                    <option value="0.1257">Tong 60 Liter (D 40 cm, T 64 cm)</option>
+                    <option value="0.1257">Tong 80 Liter (D 40 cm, T 80 cm)</option>
+                    <option value="0.1590">Tong 120 Liter (D 45 cm, T 81 cm)</option>
+                    <option value="0.1963">Tong 150 Liter (D 50 cm, T 100 cm)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label id="label-tinggi-awal">Ketinggian Air Tandon (Cm)</label>
+                <input type="number" id="ab-tinggi-awal" value="40" placeholder="Contoh: 40">
+            </div>
+            <div class="form-group hidden" id="box-tinggi-target">
+                <label style="color: #2980b9;">Ketinggian Air TARGET (Cm)</label>
+                <input type="number" id="ab-tinggi-target" value="60" placeholder="Contoh: 60">
+            </div>
+        </div>
+
+        <!-- Input Volume Manual -->
+        <div id="box-volume-awal" class="form-group hidden">
+            <label id="label-volume-awal">Volume Air Tandon (Liter)</label>
+            <input type="number" id="ab-volume-awal" placeholder="Contoh: 25">
+        </div>
+        <div id="box-volume-target" class="form-group hidden">
+            <label style="color: #2980b9;">Volume Air TARGET (Liter)</label>
+            <input type="number" id="ab-volume-target" placeholder="Contoh: 60">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <div class="form-group">
+            <label id="label-nilai-awal">PPM Awal Tandon saat ini</label>
+            <input type="number" id="ab-nilai-awal" step="0.1" value="450" placeholder="Contoh: 450">
+        </div>
+
+        <div class="form-group">
+            <label id="label-nilai-target">PPM Target Tandon</label>
+            <input type="number" id="ab-nilai-target" step="0.1" value="1100" placeholder="Contoh: 1100">
+        </div>
+
+        <div class="form-group">
+            <label id="label-konstanta">Kenaikan per 1 ml pasang AB Mix per Liter (Standar: 200)</label>
+            <input type="number" id="ab-konstanta" step="0.1" value="200" placeholder="200">
+        </div>
+
+        <button type="button" onclick="hitungABMix()">Hitung Kebutuhan AB Mix</button>
+
+        <div class="results">
+            <h3>📈 Hasil Perhitungan Nutrisi</h3>
+            <div class="result-item">
+                <span>Volume Air (Awal):</span>
+                <span id="res-ab-vol-awal">0 Liter</span>
+            </div>
+            <div class="result-item hidden" id="res-box-vol-tambah">
+                <span class="text-blue">💧 Air yang harus ditambah:</span>
+                <span id="res-ab-vol-tambah" class="text-blue" style="font-size: 1.1rem;">0 Liter</span>
+            </div>
+            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0;">
+            <div class="result-item" style="color: #27ae60; font-size: 1.1rem;">
+                <span>Kebutuhan Pekatan A:</span>
+                <span id="res-ab-pekatan-a">0 ml</span>
+            </div>
+            <div class="result-item" style="color: #27ae60; font-size: 1.1rem;">
+                <span>Kebutuhan Pekatan B:</span>
+                <span id="res-ab-pekatan-b">0 ml</span>
+            </div>
+        </div>
+        
+        <div class="warning">
+            💡 **Tips:** Jika melakukan penambahan air, masukkan air baku tambahan tersebut terlebih dahulu ke tandon sebelum memasukkan hasil hitungan pekatan AB Mix.
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 2. KALKULATOR pH DOWN -->
+    <!-- ========================================== -->
+    <div class="card ph-down">
+        <h2>🧪 Kalkulator pH Down</h2>
+        <p style="font-size: 0.85rem; text-align: center; margin-top: -15px; color: #666;">Menghitung Kebutuhan Asam untuk Menurunkan pH</p>
+        
+        <div class="radio-group">
+            <label><input type="radio" name="ph-method" value="teoritis" checked onchange="togglePhMethod()"> Teoritis (Asumsi)</label>
+            <label><input type="radio" name="ph-method" value="empiris" onchange="togglePhMethod()"> Uji Sampel (Empiris)</label>
+        </div>
+
+        <div class="radio-group">
+            <label><input type="radio" name="ph-input-type" value="tinggi" checked onchange="togglePhInput()"> Ketinggian Air (Cm)</label>
+            <label><input type="radio" name="ph-input-type" value="volume" onchange="togglePhInput()"> Volume Air (Liter)</label>
+        </div>
+
+        <div id="ph-dimensi-box">
+            <div class="form-group">
+                <label>Pilih Bentuk Tong / Tandon</label>
+                <select id="ph-wadah">
+                    <option value="3.24">Bunker GH5 (Berukuran 1.8 x 1.8 meter)</option>
+                    <option value="0.8992">Tandon Grand Hitam 1200 Liter (D 107 cm, T 156 cm)</option>
+                    <option value="0.8825">Tandon Grand Orange 1200 Liter (D 106 cm, T 152 cm)</option>
+                    <option value="0.1257">Tong 60 Liter (D 40 cm, T 64 cm)</option>
+                    <option value="0.1257">Tong 80 Liter (D 40 cm, T 80 cm)</option>
+                    <option value="0.1590">Tong 120 Liter (D 45 cm, T 81 cm)</option>
+                    <option value="0.1963">Tong 150 Liter (D 50 cm, T 100 cm)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ketinggian Air Tandon (Cm)</label>
+                <input type="number" id="ph-tinggi" value="60" placeholder="Contoh: 60">
+            </div>
+        </div>
+
+        <div id="ph-volume-box" class="form-group hidden">
+            <label>Volume Air Tandon (Liter)</label>
+            <input type="number" id="ph-volume-manual" placeholder="Contoh: 1944">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <!-- Parameter Utama pH -->
+        <div class="form-group">
+            <label>pH Awal</label>
+            <input type="number" id="ph-awal" step="0.1" value="7.5" placeholder="Contoh: 7.5">
+        </div>
+        <div class="form-group">
+            <label>pH Target</label>
+            <input type="number" id="ph-target" step="0.1" value="6.0" placeholder="Contoh: 6.0">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <!-- Opsi Teoritis -->
+        <div id="ph-teoritis-box">
+            <div class="form-group">
+                <label>Konsentrasi Asam (%) <span style="font-weight: normal; font-size: 0.8rem;">(Contoh: HNO₃ 20%)</span></label>
+                <input type="number" id="ph-konsentrasi" value="20">
+            </div>
+        </div>
+
+        <!-- Section Uji Sampel Empiris -->
+        <div id="ph-empiris-box" class="hidden" style="background: #fff5f5; padding: 15px; border-radius: 6px; border: 1px solid #fadbd8;">
+            <h4 style="margin-top: 0; color: #c0392b;">Data Hasil Tes di Ember (Sampel)</h4>
+            <div class="form-group">
+                <label>Volume Air Sampel (Liter)</label>
+                <input type="number" id="ph-sampel-volume" value="1" placeholder="Contoh: 1">
+            </div>
+            <div class="form-group">
+                <label>pH Down yang Digunakan (ml)</label>
+                <input type="number" id="ph-sampel-pakai" step="0.1" value="0.5" placeholder="Contoh: 0.5">
+            </div>
+            <div class="form-group">
+                <label style="color: #c0392b;">pH Sampel Turun Menjadi</label>
+                <input type="number" id="ph-sampel-akhir" step="0.1" value="6.5" placeholder="Contoh: 6.5">
+            </div>
+        </div>
+
+        <button type="button" onclick="hitungPhDown()">Hitung Kebutuhan pH Down</button>
+
+        <div class="results">
+            <h3 style="color: #c0392b;">📉 Hasil Perhitungan pH Down</h3>
+            <div class="result-item">
+                <span>Volume Air Terhitung:</span>
+                <span id="res-ph-volume">0 Liter</span>
+            </div>
+            <div class="result-item" style="color: #c0392b; font-size: 1.1rem; margin-top: 10px;">
+                <span>Kebutuhan Larutan pH Down:</span>
+                <span id="res-ph-kebutuhan">0 ml</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- FUNGSI UPDATE UI AB MIX ---
+    function updateABUI() {
+        const skenario = document.querySelector('input[name="ab-skenario"]:checked').value;
+        const satuan = document.querySelector('input[name="ab-satuan"]:checked').value;
+        const inputType = document.querySelector('input[name="ab-input-type"]:checked').value;
+
+        // 1. Update Label Satuan (PPM / EC)
+        const lblSatuan = satuan.toUpperCase();
+        document.getElementById('label-nilai-awal').innerText = `${lblSatuan} Awal Tandon saat ini`;
+        document.getElementById('label-nilai-target').innerText = `${lblSatuan} Target Tandon`;
+        
+        let konstantaInput = document.getElementById('ab-konstanta');
+        if (satuan === 'ppm') {
+            document.getElementById('label-konstanta').innerText = "Kenaikan per 1 ml pasang AB Mix per Liter (Standar: 200)";
+            if (konstantaInput.value == 0.4 || konstantaInput.value == "") konstantaInput.value = 200;
+        } else {
+            document.getElementById('label-konstanta').innerText = "Kenaikan EC per 1 ml pasang AB Mix per Liter (Standar: 0.4)";
+            if (konstantaInput.value == 200 || konstantaInput.value == "") konstantaInput.value = 0.4;
+        }
+
+        // 2. Tampilkan/Sembunyikan Input
+        document.getElementById('ab-dimensi-box').classList.add('hidden');
+        document.getElementById('box-volume-awal').classList.add('hidden');
+        document.getElementById('box-tinggi-target').classList.add('hidden');
+        document.getElementById('box-volume-target').classList.add('hidden');
+
+        if (inputType === 'tinggi') {
+            document.getElementById('ab-dimensi-box').classList.remove('hidden');
+            document.getElementById('label-tinggi-awal').innerText = (skenario === 'tambah') ? 'Ketinggian Air SAAT INI (Cm)' : 'Ketinggian Air Tandon (Cm)';
+            if (skenario === 'tambah') {
+                document.getElementById('box-tinggi-target').classList.remove('hidden');
+            }
+        } else {
+            document.getElementById('box-volume-awal').classList.remove('hidden');
+            document.getElementById('label-volume-awal').innerText = (skenario === 'tambah') ? 'Volume Air SAAT INI (Liter)' : 'Volume Air Tandon (Liter)';
+            if (skenario === 'tambah') {
+                document.getElementById('box-volume-target').classList.remove('hidden');
+            }
+        }
+    }
+
+    // --- FUNGSI HITUNG AB MIX ---
+    function hitungABMix() {
+        const skenario = document.querySelector('input[name="ab-skenario"]:checked').value;
+        const inputType = document.querySelector('input[name="ab-input-type"]:checked').value;
+
+        let vAwal = 0;
+        let vTarget = 0;
+
+        if (inputType === 'tinggi') {
+            let luasAlas = parseFloat(document.getElementById('ab-wadah').value) || 0;
+            let tAwal = parseFloat(document.getElementById('ab-tinggi-awal').value) || 0;
+            vAwal = luasAlas * tAwal * 10;
+            
+            if (skenario === 'tambah') {
+                let tTarget = parseFloat(document.getElementById('ab-tinggi-target').value) || 0;
+                vTarget = luasAlas * tTarget * 10;
+            } else {
+                vTarget = vAwal;
+            }
+        } else {
+            vAwal = parseFloat(document.getElementById('ab-volume-awal').value) || 0;
+            if (skenario === 'tambah') {
+                vTarget = parseFloat(document.getElementById('ab-volume-target').value) || 0;
+            } else {
+                vTarget = vAwal;
+            }
+        }
+
+        let nilaiAwal = parseFloat(document.getElementById('ab-nilai-awal').value) || 0;
+        let nilaiTarget = parseFloat(document.getElementById('ab-nilai-target').value) || 0;
+        let konstanta = parseFloat(document.getElementById('ab-konstanta').value) || 200;
+
+        let totalBebanTarget = vTarget * nilaiTarget;
+        let totalBebanAwal = vAwal * nilaiAwal;
+        let selisihBeban = totalBebanTarget - totalBebanAwal;
+        
+        let kebutuhanPekatan = 0;
+        if (selisihBeban > 0) {
+            kebutuhanPekatan = selisihBeban / konstanta;
+        }
+
+        let airDitambah = vTarget - vAwal;
+        if (airDitambah < 0) airDitambah = 0; 
+
+        document.getElementById('res-ab-vol-awal').innerText = vAwal.toLocaleString('id-ID', {maximumFractionDigits: 2}) + " Liter";
+        
+        if (skenario === 'tambah' && airDitambah > 0) {
+            document.getElementById('res-box-vol-tambah').classList.remove('hidden');
+            document.getElementById('res-ab-vol-tambah').innerText = airDitambah.toLocaleString('id-ID', {maximumFractionDigits: 2}) + " Liter";
+        } else {
+            document.getElementById('res-box-vol-tambah').classList.add('hidden');
+        }
+
+        document.getElementById('res-ab-pekatan-a').innerText = kebutuhanPekatan.toLocaleString('id-ID', {maximumFractionDigits: 2}) + " ml";
+        document.getElementById('res-ab-pekatan-b').innerText = kebutuhanPekatan.toLocaleString('id-ID', {maximumFractionDigits: 2}) + " ml";
+    }
+
+    // --- FUNGSI UNTUK pH DOWN ---
+    function togglePhMethod() {
+        const method = document.querySelector('input[name="ph-method"]:checked').value;
+        if (method === 'empiris') {
+            document.getElementById('ph-empiris-box').classList.remove('hidden');
+            document.getElementById('ph-teoritis-box').classList.add('hidden');
+        } else {
+            document.getElementById('ph-empiris-box').classList.add('hidden');
+            document.getElementById('ph-teoritis-box').classList.remove('hidden');
+        }
+    }
+
+    function togglePhInput() {
+        const type = document.querySelector('input[name="ph-input-type"]:checked').value;
+        if (type === 'tinggi') {
+            document.getElementById('ph-dimensi-box').classList.remove('hidden');
+            document.getElementById('ph-volume-box').classList.add('hidden');
+        } else {
+            document.getElementById('ph-dimensi-box').classList.add('hidden');
+            document.getElementById('ph-volume-box').classList.remove('hidden');
+        }
+    }
+
+    function hitungPhDown() {
+        let inputTypePh = document.querySelector('input[name="ph-input-type"]:checked').value;
+        let volumeAirPh = 0;
+
+        // 1. Hitung Volume Air Tandon
+        if (inputTypePh === 'tinggi') {
+            let luasAlas = parseFloat(document.getElementById('ph-wadah').value) || 0;
+            let tinggi = parseFloat(document.getElementById('ph-tinggi').value) || 0;
+            volumeAirPh = luasAlas * tinggi * 10;
+        } else {
+            volumeAirPh = parseFloat(document.getElementById('ph-volume-manual').value) || 0;
+        }
+
+        let method = document.querySelector('input[name="ph-method"]:checked').value;
+        let kebutuhanPh = 0;
+
+        // Ambil Parameter pH
+        let phAwal = parseFloat(document.getElementById('ph-awal').value) || 7.5;
+        let phTarget = parseFloat(document.getElementById('ph-target').value) || 6.0;
+        let selisihPhTarget = phAwal - phTarget; // Jarak pH yang ingin diturunkan di tandon
+
+        if (selisihPhTarget > 0) {
+            if (method === 'empiris') {
+                // Logika Ekstrapolasi Uji Sampel
+                let volSampel = parseFloat(document.getElementById('ph-sampel-volume').value) || 1;
+                let pakaiSampel = parseFloat(document.getElementById('ph-sampel-pakai').value) || 0;
+                let phAkhirSampel = parseFloat(document.getElementById('ph-sampel-akhir').value) || phAwal;
+                
+                let selisihPhSampel = phAwal - phAkhirSampel; // Seberapa jauh pH sampel turun
+
+                if (selisihPhSampel > 0 && volSampel > 0) {
+                    // Berapa ml asam yang dibutuhkan untuk menurunkan 1.0 pH per 1 Liter air?
+                    let dosisPerLiterPerPh = pakaiSampel / volSampel / selisihPhSampel;
+                    
+                    // Kalikan dengan target penurunan tandon dan volume tandon
+                    kebutuhanPh = dosisPerLiterPerPh * selisihPhTarget * volumeAirPh;
+                }
+            } else {
+                // Logika Teoritis
+                let konsentrasi = parseFloat(document.getElementById('ph-konsentrasi').value) || 20;
+                kebutuhanPh = (selisihPhTarget * 0.1 * (100 / konsentrasi)) * volumeAirPh;
+            }
+        }
+
+        // Tampilkan Hasil
+        document.getElementById('res-ph-volume').innerText = volumeAirPh.toLocaleString('id-ID', {maximumFractionDigits: 2}) + " Liter";
+        document.getElementById('res-ph-kebutuhan').innerText = kebutuhanPh.toLocaleString('id-ID', {maximumFractionDigits: 2}) + " ml";
+    }
+
+    // Inisialisasi awal saat halaman dimuat
+    updateABUI();
+</script>
+</body>
+</html>
